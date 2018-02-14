@@ -16,7 +16,7 @@ module SecondLevelCache
         return nil unless record
 
         record.tap do |r|
-          SecondLevelCache.cache_store.write(cache_key, r.id)
+          SecondLevelCache.cache_store.write(cache_key, r.id, expires_in: second_level_cache_options[:expires_in])
         end
       end
 
