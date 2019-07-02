@@ -1,4 +1,6 @@
-require 'test_helper'
+# frozen_string_literal: true
+
+require "test_helper"
 
 class SingleTableInheritanceTest < ActiveSupport::TestCase
   def test_superclass_find__caches_superclass_record
@@ -30,6 +32,13 @@ class SingleTableInheritanceTest < ActiveSupport::TestCase
       assert_raises ActiveRecord::RecordNotFound do
         Dog.find(animal.id)
       end
+    end
+  end
+
+  def test_superclass_find__caches_all_subclasses
+    cat = Cat.create
+    assert_no_queries do
+      assert_equal cat, Animal.find(cat.id)
     end
   end
 end

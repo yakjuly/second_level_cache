@@ -1,7 +1,6 @@
 # SecondLevelCache
 
 [![Gem Version](https://badge.fury.io/rb/second_level_cache.svg)](http://badge.fury.io/rb/second_level_cache)
-[![Dependency Status](https://gemnasium.com/hooopo/second_level_cache.svg)](https://gemnasium.com/hooopo/second_level_cache)
 [![Build Status](https://travis-ci.org/hooopo/second_level_cache.svg?branch=master)](https://travis-ci.org/hooopo/second_level_cache)
 [![Code Climate](https://codeclimate.com/github/hooopo/second_level_cache.svg)](https://codeclimate.com/github/hooopo/second_level_cache)
 
@@ -16,7 +15,13 @@ Write-Through: As objects are created, updated, and deleted, all of the caches a
 
 In your gem file:
 
-ActiveRecord 5:
+ActiveRecord 5.2:
+
+```ruby
+gem 'second_level_cache', '~> 2.4.0'
+```
+
+ActiveRecord 5.0.x, 5.1.x:
 
 ```ruby
 gem 'second_level_cache', '~> 2.3.0'
@@ -164,12 +169,14 @@ Answer Load (0.2ms)  SELECT `answers`.* FROM `answers` ORDER BY id DESC LIMIT 10
 
 [Details for read_multi feature](http://hooopo.writings.io/articles/a9cae5e0).
 
-## Contributors
+## Original design by:
 
 * [chloerei](https://github.com/chloerei)
-* [reyesyang](https://github.com/reyesyang)
 * [hooopo](https://github.com/hooopo)
-* [sishen](https://github.com/sishen)
+
+## Contributors
+
+[Contributor List](https://github.com/hooopo/second_level_cache/graphs/contributors)
 
 ## License
 

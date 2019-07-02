@@ -1,5 +1,8 @@
-source 'https://rubygems.org'
+# frozen_string_literal: true
+
+source "https://rubygems.org"
 
 gemspec
-
-gem 'rails', '~> 5.1.0'
+gem "paranoia", "~> 2.2"
+gem "pry"
+gem "rails", "~> 5.2.0.rc"

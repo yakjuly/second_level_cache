@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SecondLevelCache
   module Mixin
     extend ActiveSupport::Concern
@@ -18,19 +20,14 @@ module SecondLevelCache
 
       def second_level_cache_enabled?
         if defined? @second_level_cache_enabled
-          @second_level_cache_enabled == true
+          @second_level_cache_enabled == true && SecondLevelCache.cache_enabled?
         else
           false
         end
       end
 
-      def without_second_level_cache
-        old = @second_level_cache_enabled
-        @second_level_cache_enabled = false
-
-        yield if block_given?
-      ensure
-        @second_level_cache_enabled = old
+      def without_second_level_cache(&blk)
+        SecondLevelCache.without_second_level_cache(&blk) if blk
       end
 
       # Get MD5 digest of this Model schema
@@ -39,7 +36,7 @@ module SecondLevelCache
         return @cache_version if defined? @cache_version
         # This line is copy from:
         # https://github.com/rails/rails/blob/f9a5f48/activerecord/lib/active_record/core.rb#L236
-        attr_list = attribute_types.map { |name, type| "#{name}: #{type.type}" } * ', '
+        attr_list = attribute_types.map { |name, type| "#{name}: #{type.type}" } * ", "
         model_schema_digest = Digest::MD5.hexdigest(attr_list)
         @cache_version = "#{second_level_cache_options[:version]}/#{model_schema_digest}"
       end
@@ -60,18 +57,22 @@ module SecondLevelCache
     end
 
     def second_level_cache_key
-      self.class.second_level_cache_key(id)
+      klass.second_level_cache_key(id)
+    end
+
+    def klass
+      self.class.base_class
     end
 
     def expire_second_level_cache
-      return unless self.class.second_level_cache_enabled?
+      return unless klass.second_level_cache_enabled?
       SecondLevelCache.cache_store.delete(second_level_cache_key)
     end
 
     def write_second_level_cache
-      return unless self.class.second_level_cache_enabled?
+      return unless klass.second_level_cache_enabled?
       marshal = RecordMarshal.dump(self)
-      expires_in = self.class.second_level_cache_options[:expires_in]
+      expires_in = klass.second_level_cache_options[:expires_in]
       expire_changed_association_uniq_keys
       SecondLevelCache.cache_store.write(second_level_cache_key, marshal, expires_in: expires_in)
     end
@@ -79,10 +80,10 @@ module SecondLevelCache
     alias update_second_level_cache write_second_level_cache
 
     def expire_changed_association_uniq_keys
-      reflections = self.class.reflections.select { |_, reflection| reflection.belongs_to? }
+      reflections = klass.reflections.select { |_, reflection| reflection.belongs_to? }
       changed_keys = reflections.map { |_, reflection| reflection.foreign_key } & previous_changes.keys
       changed_keys.each do |key|
-        SecondLevelCache.cache_store.delete(self.class.send(:cache_uniq_key, key => previous_changes[key][0]))
+        SecondLevelCache.cache_store.delete(klass.send(:cache_uniq_key, key => previous_changes[key][0]))
       end
     end
   end
